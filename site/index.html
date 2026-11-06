@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitHub Top-K · AI & Full-stack</title>
+<meta name="description" content="Explore curated AI and full-stack open-source projects, with GitHub Top-K ranks when available. 中文 / English.">
+<meta property="og:title" content="GitHub Top-K">
+<meta property="og:description" content="A bilingual catalog of AI and full-stack open-source projects, with categories, summaries, and analysis.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/i18n.js" defer></script>
+<script src="assets/filters.js" defer></script>
+<script src="assets/analysis.js" defer></script>
+<script src="assets/app.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="lang-switch" role="group" aria-label="Language">
+    <button type="button" data-lang="en" aria-pressed="false">English</button>
+    <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+  </div>
+  <h1>GitHub Top-K</h1>
+  <p id="intro">Explore curated AI and full-stack projects, with current GitHub Top-K ranks when available.</p>
+</header>
+
+<nav class="catalog-tabs" aria-label="Catalog">
+  <a href="?tab=ai" data-tab="ai" aria-current="page"><span data-tab-label="ai">AI</span><span class="tab-count" data-tab-count="ai"></span></a>
+  <a href="?tab=fullstack" data-tab="fullstack"><span data-tab-label="fullstack">Full-stack</span><span class="tab-count" data-tab-count="fullstack"></span></a>
+</nav>
+<section class="tab-intro" aria-live="polite">
+  <div class="tab-intro-label" id="tabIntroLabel"></div>
+  <p id="tabIntro"></p>
+  <div class="meta" id="meta">Loading…</div>
+  <div class="links"><a href="data/catalog.json" download data-i18n="download">Download full data (JSON)</a></div>
+</section>
+
+<div class="view-switch" role="group" data-i18n-aria="view">
+  <button type="button" data-view="cards" aria-pressed="true" data-i18n="viewCards">Projects</button>
+  <button type="button" data-view="analysis" aria-pressed="false" data-i18n="viewAnalysis">Analysis</button>
+</div>
+
+<div class="controls">
+  <span data-i18n="sortBy">Sort:</span>
+  <button data-sort="stars" aria-pressed="true" data-i18n="sortStars">Stars</button>
+  <button data-sort="created" aria-pressed="false" data-i18n="sortCreated">Created</button>
+  <button data-sort="fresh" aria-pressed="false" data-i18n="sortFresh">Recently updated</button>
+  <button data-sort="watching" aria-pressed="false" data-i18n="sortWatching">Watching</button>
+  <button data-sort="forks" aria-pressed="false" data-i18n="sortForks">Forks</button>
+</div>
+
+<div class="filter-bar">
+  <div class="search-row">
+    <input type="search" id="searchInput" class="search-input" data-i18n-placeholder="search" data-i18n-aria="search" placeholder="Search name or summary…">
+    <div class="search-scope" role="group" data-i18n-aria="searchScope">
+      <button type="button" data-search-scope="all" aria-pressed="true" data-i18n="searchAll">Name + summary</button>
+      <button type="button" data-search-scope="name" aria-pressed="false" data-i18n="searchName">Name only</button>
+    </div>
+  </div>
+  <div class="filter-row" id="filterRow">
+    <div class="dropdown" id="categoryDropdown">
+      <button class="dropdown-toggle" aria-expanded="false" aria-controls="categoryDropdownMenu" id="categoryDropdownBtn" type="button">Category</button>
+      <div class="dropdown-menu" id="categoryDropdownMenu" hidden></div>
+    </div>
+    <div class="dropdown" id="createdDropdown">
+      <button class="dropdown-toggle" aria-expanded="false" aria-controls="createdDropdownMenu" id="createdDropdownBtn" type="button">Created</button>
+      <div class="dropdown-menu" id="createdDropdownMenu" hidden></div>
+    </div>
+    <div class="dropdown" id="pushedDropdown">
+      <button class="dropdown-toggle" aria-expanded="false" aria-controls="pushedDropdownMenu" id="pushedDropdownBtn" type="button">Last push</button>
+      <div class="dropdown-menu" id="pushedDropdownMenu" hidden></div>
+    </div>
+    <div class="dropdown" id="rankDropdown">
+      <button class="dropdown-toggle" aria-expanded="false" aria-controls="rankDropdownMenu" id="rankDropdownBtn" type="button">Rank</button>
+      <div class="dropdown-menu" id="rankDropdownMenu" hidden></div>
+    </div>
+    <div class="dropdown" id="statusDropdown">
+      <button class="dropdown-toggle" aria-expanded="false" aria-controls="statusDropdownMenu" id="statusDropdownBtn" type="button">Conditions</button>
+      <div class="dropdown-menu" id="statusDropdownMenu" hidden></div>
+    </div>
+    <div class="dropdown" id="langDropdown">
+      <button class="dropdown-toggle" aria-expanded="false" aria-controls="langDropdownMenu" id="langDropdownBtn" type="button">Code language</button>
+      <div class="dropdown-menu" id="langDropdownMenu" hidden></div>
+    </div>
+    <div class="dropdown" id="licenseDropdown">
+      <button class="dropdown-toggle" aria-expanded="false" aria-controls="licenseDropdownMenu" id="licenseDropdownBtn" type="button">License</button>
+      <div class="dropdown-menu" id="licenseDropdownMenu" hidden></div>
+    </div>
+    <div class="dropdown" id="orgDropdown">
+      <button class="dropdown-toggle" aria-expanded="false" aria-controls="orgDropdownMenu" id="orgDropdownBtn" type="button">Organization</button>
+      <div class="dropdown-menu" id="orgDropdownMenu" hidden></div>
+    </div>
+    <button id="resetFilters" class="chip reset" hidden data-i18n="reset">✕ Reset filters</button>
+  </div>
+  <div class="filter-feedback">
+    <span id="resultCount" class="result-count" role="status" aria-live="polite"></span>
+    <div id="activeFilters" class="active-filters"></div>
+  </div>
+  <p class="filter-hint" data-i18n="filterLogic"></p>
+</div>
+
+<aside class="toc" id="toc" data-i18n-aria="toc">
+  <div class="toc-head"><span data-i18n="toc">Contents</span><button class="toc-btn" id="tocClose" type="button" data-i18n="tocHide" data-i18n-title="tocHideTitle">Hide</button></div>
+  <nav class="toc-body" id="tocBody"></nav>
+</aside>
+<button class="toc-btn toc-open-btn" id="tocOpen" type="button" aria-controls="toc" aria-expanded="false" data-i18n="tocOpen" data-i18n-title="tocOpenTitle">☰ Contents</button>
+
+<div id="groupsContainer"></div>
+<div id="analysisView"></div>
+
+<dialog id="noteDialog" class="note-dialog" aria-labelledby="noteDialogTitle">
+  <div class="note-dialog-head">
+    <h2 id="noteDialogTitle"></h2>
+    <button id="noteDialogClose" class="toc-btn" type="button" data-i18n="noteClose" data-i18n-aria="noteClose">Close</button>
+  </div>
+  <div id="noteDialogBody" class="note-dialog-body"></div>
+</dialog>
+
+<footer class="page-foot" data-i18n="footer">Data: GitHub API · AI maintained, maintainer reviewed</footer>
+<button id="backToTop" class="back-to-top" type="button" data-i18n="backToTop" data-i18n-aria="backToTop" aria-label="Back to top" hidden>Back to top</button>
+</body>
+</html>
